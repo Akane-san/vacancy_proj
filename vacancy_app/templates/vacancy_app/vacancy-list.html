@@ -43,7 +43,12 @@
               {% endfor %}
               {% else %}
               <p>Пока нет вакансий</p>
+              {% endif %} 
+              {% if company %}
               <a href="{% url 'mycompany_vacancies_create' %}" class="btn btn-info mb-2">Создать вакансию</a>
+              {% else %}
+              <p>У вас ещё нет компании</p>
+              <a href="{% url 'mycompany_create' %}" class="btn btn-info mb-2">Создать компанию</a>
               {% endif %}
             </section>
           </div>

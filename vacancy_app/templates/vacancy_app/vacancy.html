@@ -19,6 +19,7 @@
           <div style="line-height: 1.8;">
             {{ vacancy.description | safe }}
           </div>
+          {% if request.user.is_authenticated %}
           <form action="" method="post" enctype="multipart/form-data">
             {% csrf_token %}        
             <div class="form-error">{{ form.non_field_errors }}</div>        
@@ -27,6 +28,9 @@
             <div class="form-error">{{ f.errors }}</div>
             {% endfor %}    
             <button type="submit">Добавить</button>
+          {% else %}
+          <p>Чтобы откликнуться на вакансию необходимо <a href="{% url 'login' %}" class="nav-link font-weight-bold">авторизоваться</a></p>
+          {% endif %}
           </form>          
         </section>
       </div>

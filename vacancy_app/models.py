@@ -1,12 +1,11 @@
-from distutils.command.upload import upload
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import ForeignKey
 
 from phonenumber_field.modelfields import PhoneNumberField
 
-from vacancy_proj.settings import BASE_DIR, MEDIA_COMPANY_IMAGE_DIR, MEDIA_SPECIALITY_IMAGE_DIR
-import os
+from vacancy_proj.settings import MEDIA_COMPANY_IMAGE_DIR, MEDIA_SPECIALITY_IMAGE_DIR
+
 
 # Create your models here.
 class Company(models.Model):
@@ -37,7 +36,7 @@ class Vacancy(models.Model):
 
 class Application(models.Model):
     written_username = models.CharField(max_length=100)
-    written_phone = PhoneNumberField(null = False, blank = False) 
+    written_phone = PhoneNumberField(null=False, blank=False) 
     written_cover_letter = models.TextField()
     vacancy = ForeignKey(Vacancy, on_delete=models.CASCADE, related_name="applications")
     user = ForeignKey(User, on_delete=models.CASCADE, related_name="applications")

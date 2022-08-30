@@ -2,11 +2,13 @@ from django.contrib import admin
 from .models import Vacancy, Company, Application
 from django import forms
 
+
 class CompanyForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(CompanyForm, self).__init__(*args, **kwargs)
 
         self.fields['owner'].required = False
+
 
 class VacancyAdmin(admin.ModelAdmin):
     pass

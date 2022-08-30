@@ -3,9 +3,9 @@ from django.contrib.auth import logout, login
 from django.contrib.auth.views import LoginView
 from django.shortcuts import render, redirect
 from django.http import HttpResponseServerError, HttpResponseNotFound
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from django.core.exceptions import ObjectDoesNotExist
-from django.urls import reverse, reverse_lazy 
+from django.urls import reverse
 from django.views.generic import CreateView
 
 from vacancy_app.forms import *
@@ -45,8 +45,8 @@ def vacancy_view(request, vacancy_id):
             form = ApplicationForm(request.POST, request.FILES)
             if form.is_valid():
                 args= form.save(commit=False) # принимаем данные от формы
-                setattr(args,'user',User.objects.get(id=request.user.id))
-                setattr(args,'vacancy',Vacancy.objects.get(id=vacancy_id))
+                setattr(args, 'user', User.objects.get(id=request.user.id))
+                setattr(args, 'vacancy', Vacancy.objects.get(id=vacancy_id))
                 args.save()
                 return redirect(reverse('vacancy_send', kwargs={'vacancy_id': vacancy_id}))
         else:
@@ -99,9 +99,15 @@ def mycompany_create_view(request):
 
 def mycompany_vacancies_view(request):
     context = {}
-    context['vacancies'] = Vacancy.objects.filter(company = request.user.company)
-    print("----",request.user.company )
+    try:
+        vacancies = Vacancy.objects.filter(company = request.user.company)
+        context['vacancies'] = vacancies
+        if(vacancies):
+            context['company'] = True
+    except ObjectDoesNotExist:
+        pass
     return render(request, "vacancy_app/vacancy-list.html", context=context)
+    
 
 def mycompany_vacancies_create_view(request):
     context = {}
@@ -127,7 +133,7 @@ def mycompany_vacancy_view(request,vacancy_id):
     try:
         vacancy = Vacancy.objects.get(id=vacancy_id)
         context['vacancy'] = vacancy
-        context['applications'] = Application.objects.filter(vacancy = vacancy)
+        context['applications'] = Application.objects.filter(vacancy=vacancy)
         if request.method == "POST":
             form = VacancyForm(request.POST, instance=vacancy)
             if form.is_valid():
@@ -143,6 +149,7 @@ def mycompany_vacancy_view(request,vacancy_id):
     except ObjectDoesNotExist:
         return HttpResponseNotFound('Ресурс не найден!')
 
+
 class RegisterUser(CreateView):
     form_class = RegisterUserForm
     success_url = 'login'
@@ -152,10 +159,12 @@ class RegisterUser(CreateView):
         login(self.request, user)
         return redirect('main')
 
+
 class LoginUser(LoginView):
     redirect_authenticated_user = True
     success_url = 'main'
     template_name = 'vacancy_app/login.html'
+
 
 def logout_view(request):
     logout(request)

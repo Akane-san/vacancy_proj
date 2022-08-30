@@ -1,7 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
 
 from vacancy_app.models import *
 
@@ -15,7 +14,7 @@ class RegisterUserForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ('username', 'email','first_name', 'password1', 'password2')
+        fields = ('username', 'email', 'first_name', 'password1', 'password2')
 
 
 class LoginUserForm(AuthenticationForm):
@@ -26,12 +25,14 @@ class LoginUserForm(AuthenticationForm):
 class ApplicationForm(forms.ModelForm):
     class Meta:
         model = Application
-        fields = ['written_username','written_phone','written_cover_letter']
+        fields = ['written_username', 'written_phone', 'written_cover_letter']
+
 
 class CompanyForm(forms.ModelForm):
     class Meta:
         model = Company
-        fields = ['name','location', 'logo','description','employee_count']  
+        fields = ['name', 'location', 'logo', 'description', 'employee_count']  
+
 
 class VacancyForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -40,4 +41,4 @@ class VacancyForm(forms.ModelForm):
         self.fields['specialty'].to_field_name = "code"
     class Meta:
         model = Vacancy
-        fields = ['title', 'specialty', 'skills','description','salary_min','salary_max']  
+        fields = ['title', 'specialty', 'skills', 'description', 'salary_min', 'salary_max']  
