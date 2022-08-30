@@ -1,8 +1,9 @@
+from django.utils import timezone
 from django.contrib.auth import logout, login
 from django.contrib.auth.views import LoginView
 from django.shortcuts import render, redirect
 from django.http import HttpResponseServerError, HttpResponseNotFound
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse, reverse_lazy 
 from django.views.generic import CreateView
@@ -71,26 +72,74 @@ def mycompany_letsstart_view(request):
     return render(request, "vacancy_app/company-create.html", context=context)
 
 def mycompany_create_view(request):
-    context = {}
-    return render(request, "vacancy_app/company-edit.html", context=context)
-
-def mycompany_view(request):
-    context = {}
-    return render(request, "vacancy_app/company-edit.html", context=context)
+    try:
+        has_company = (request.user.company is not None)
+        company = Company.objects.get(id=request.user.company.id)
+        if request.method == "POST":
+            form = CompanyForm(request.POST, instance=company)
+            if form.is_valid():
+                company = form.save(commit=False)
+                company.owner = request.user
+                company.save()
+                return redirect('mycompany_create')
+        else:
+            form = CompanyForm(instance=company)
+        return render(request, "vacancy_app/company-edit.html", {'form': form})
+    except Company.DoesNotExist:
+        if request.method == "POST":
+            form = CompanyForm(request.POST, request.FILES)
+            if form.is_valid():
+                company = form.save(commit=False)
+                company.owner = request.user
+                company.save()
+                return redirect('mycompany_create')
+        else:
+            form = CompanyForm()
+        return render(request, "vacancy_app/company-edit.html", {'form': form})
 
 def mycompany_vacancies_view(request):
     context = {}
+    context['vacancies'] = Vacancy.objects.filter(company = request.user.company)
+    print("----",request.user.company )
     return render(request, "vacancy_app/vacancy-list.html", context=context)
 
 def mycompany_vacancies_create_view(request):
     context = {}
-    return render(request, "vacancy_app/vacancy-edit.html", context=context)
+    context['vacancies'] = Vacancy.objects.filter(company = request.user.company)
+    try:
+        if request.method == "POST":
+            form = VacancyForm(request.POST, request.FILES)
+            if form.is_valid():
+                vacancy = form.save(commit=False)
+                vacancy.company = request.user.company
+                vacancy.published_at = timezone.now()
+                vacancy.save()
+                return redirect('mycompany_vacancies')
+        else:
+            form = VacancyForm()
+        context['form'] = form
+        return render(request, "vacancy_app/vacancy-edit.html", context=context)
+    except ObjectDoesNotExist:
+        return HttpResponseNotFound('Ресурс не найден!')
 
 def mycompany_vacancy_view(request,vacancy_id):
     context = {}
     try:
         vacancy = Vacancy.objects.get(id=vacancy_id)
         context['vacancy'] = vacancy
+        context['applications'] = Application.objects.filter(vacancy = vacancy)
+        if request.method == "POST":
+            form = VacancyForm(request.POST, instance=vacancy)
+            if form.is_valid():
+                vacancy = form.save(commit=False)
+                vacancy.company = request.user.company
+                #vacancy.published_at = timezone.now()
+                vacancy.save()
+                return redirect('mycompany_vacancies')
+        else:
+            form = VacancyForm(instance=vacancy)
+        context['form'] = form
+        return render(request, "vacancy_app/vacancy-edit.html", context=context)
     except ObjectDoesNotExist:
         return HttpResponseNotFound('Ресурс не найден!')
 

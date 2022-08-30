@@ -27,3 +27,17 @@ class ApplicationForm(forms.ModelForm):
     class Meta:
         model = Application
         fields = ['written_username','written_phone','written_cover_letter']
+
+class CompanyForm(forms.ModelForm):
+    class Meta:
+        model = Company
+        fields = ['name','location', 'logo','description','employee_count']  
+
+class VacancyForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['specialty'].empty_label = "Специальность не выбрана"
+        self.fields['specialty'].to_field_name = "code"
+    class Meta:
+        model = Vacancy
+        fields = ['title', 'specialty', 'skills','description','salary_min','salary_max']  

@@ -37,7 +37,6 @@ urlpatterns = [
     path('vacancies/<int:vacancy_id>/send', vacancy_send_view, name='vacancy_send'),
     path('mycompany/letsstart/', mycompany_letsstart_view, name='mycompany_letsstart'),
     path('mycompany/create/', mycompany_create_view, name='mycompany_create'),
-    path('mycompany/', mycompany_view, name='mycompany'),
     path('mycompany/vacancies/', mycompany_vacancies_view, name='mycompany_vacancies'),
     path('mycompany/vacancies/create/', mycompany_vacancies_create_view, name='mycompany_vacancies_create'),
     path('mycompany/vacancies/<int:vacancy_id>/', mycompany_vacancy_view, name='mycompany_vacancy'),
