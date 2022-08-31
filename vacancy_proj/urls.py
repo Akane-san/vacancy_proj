@@ -42,7 +42,7 @@ urlpatterns = [
     path('login/', LoginUser.as_view(), name='login'),
     path('logout/', logout_view, name='logout'),
     path('register/', RegisterUser.as_view(), name='register'),
-    path('/search?s=<query>', search_view, name='search'),
+    path('search/', search_view, name='search_results'),
     path('/myresume/letsstart/', myresume_letsstart_view, name='myresume_letsstart'),
     path('/myresume/create/', myresume_create_view, name='myresume_create'),
     path('/myresume/', myresume_view, name='myresume'),

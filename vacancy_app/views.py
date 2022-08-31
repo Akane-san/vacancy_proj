@@ -1,4 +1,5 @@
 from django.utils import timezone
+from django.db.models import Q 
 from django.contrib.auth import logout, login
 from django.contrib.auth.views import LoginView
 from django.shortcuts import render, redirect
@@ -7,6 +8,7 @@ from django.shortcuts import render
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse
 from django.views.generic import CreateView
+from django.views.generic import TemplateView, ListView
 
 from vacancy_app.forms import *
 from vacancy_app.models import *
@@ -149,12 +151,30 @@ def mycompany_vacancy_view(request,vacancy_id):
     except ObjectDoesNotExist:
         return HttpResponseNotFound('Ресурс не найден!')
 
-def search_view(request,s):
+def search_view(request):
     context = {}
+    query = request.GET.get('q')
+    context['vacancies'] = Vacancy.objects.filter(
+            Q(title__icontains=query) | Q(skills__icontains=query) | Q(description__icontains=query)
+        )
     return render(request, "vacancy_app/search.html", context=context)
+'''
+class SearchResultsView(ListView):
+    model = Vacancy
+    template_name = 'vacancy_app/search.html'
+    def get_queryset(self): # новый
+        query = self.request.GET.get('q')
+        print(query)
+        vacancies = Vacancy.objects.filter(
+            Q(title__icontains=query) | Q(skills__icontains=query) | Q(description__icontains=query)
+        )
+        print(vacancies)
+        return vacancies
+'''
 def myresume_letsstart_view(request):
     context = {}
     return render(request, "vacancy_app/resume-create.html", context=context)
+
 def myresume_create_view(request):
     context = {}
     if request.method == "POST":
@@ -168,6 +188,7 @@ def myresume_create_view(request):
         form = ResumeForm()
     context['form'] = form
     return render(request, "vacancy_app/resume-edit.html", context=context)
+
 def myresume_view(request):
     context = {}
     resume = Resume.objects.get(id=request.user.resume.id)
