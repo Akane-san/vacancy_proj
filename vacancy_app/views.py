@@ -149,6 +149,39 @@ def mycompany_vacancy_view(request,vacancy_id):
     except ObjectDoesNotExist:
         return HttpResponseNotFound('Ресурс не найден!')
 
+def search_view(request,s):
+    context = {}
+    return render(request, "vacancy_app/search.html", context=context)
+def myresume_letsstart_view(request):
+    context = {}
+    return render(request, "vacancy_app/resume-create.html", context=context)
+def myresume_create_view(request):
+    context = {}
+    if request.method == "POST":
+        form = ResumeForm(request.POST, request.FILES)
+        if form.is_valid():
+            resume = form.save(commit=False)
+            resume.user = request.user
+            resume.save()
+            return redirect('myresume')
+    else:
+        form = ResumeForm()
+    context['form'] = form
+    return render(request, "vacancy_app/resume-edit.html", context=context)
+def myresume_view(request):
+    context = {}
+    resume = Resume.objects.get(id=request.user.resume.id)
+    if request.method == "POST":
+        form = ResumeForm(request.POST, instance=resume)
+        if form.is_valid():
+            resume = form.save(commit=False)
+            resume.user = request.user
+            resume.save()
+            return redirect('myresume')
+    else:
+        form = ResumeForm(instance=resume)
+    context['form'] = form
+    return render(request, "vacancy_app/resume-edit.html", context=context)
 
 class RegisterUser(CreateView):
     form_class = RegisterUserForm
