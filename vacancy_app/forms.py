@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 
-from vacancy_app.models import *
+from vacancy_app.models import Vacancy, Company, Application, Resume
 
 
 class RegisterUserForm(UserCreationForm):
@@ -31,7 +31,7 @@ class ApplicationForm(forms.ModelForm):
 class CompanyForm(forms.ModelForm):
     class Meta:
         model = Company
-        fields = ['name', 'location', 'logo', 'description', 'employee_count']  
+        fields = ['name', 'location', 'logo', 'description', 'employee_count']
 
 
 class VacancyForm(forms.ModelForm):
@@ -39,12 +39,13 @@ class VacancyForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['specialty'].empty_label = "Специальность не выбрана"
         self.fields['specialty'].to_field_name = "code"
+
     class Meta:
         model = Vacancy
-        fields = ['title', 'specialty', 'skills', 'description', 'salary_min', 'salary_max']  
+        fields = ['title', 'specialty', 'skills', 'description', 'salary_min', 'salary_max']
 
 
 class ResumeForm(forms.ModelForm):
     class Meta:
         model = Resume
-        fields = ['name', 'surname', 'status', 'salary', 'specialty', 'grade', 'education', 'experience', 'portfolio']  
+        fields = ['name', 'surname', 'status', 'salary', 'specialty', 'grade', 'education', 'experience', 'portfolio']

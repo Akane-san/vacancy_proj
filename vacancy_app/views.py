@@ -1,17 +1,16 @@
-from django.utils import timezone
-from django.db.models import Q 
 from django.contrib.auth import logout, login
+from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView
-from django.shortcuts import render, redirect
-from django.http import HttpResponseServerError, HttpResponseNotFound
-from django.shortcuts import render
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Q
+from django.http import HttpResponseServerError, HttpResponseNotFound
+from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.utils import timezone
 from django.views.generic import CreateView
-from django.views.generic import TemplateView, ListView
 
-from vacancy_app.forms import *
-from vacancy_app.models import *
+from vacancy_app.forms import VacancyForm, CompanyForm, ApplicationForm, ResumeForm, RegisterUserForm
+from vacancy_app.models import Vacancy, Company, Application, Resume, Specialty
 
 
 # Create your views here.
@@ -19,6 +18,7 @@ def main_view(request):
     context = {}
     context['specialties'] = list(Specialty.objects.all())
     context['companies'] = list(Company.objects.all())
+    context['examples'] = ['Python', 'Flask', 'Django', 'ML', 'Парсинг']
     return render(request, "vacancy_app/index.html", context=context)
 
 
@@ -38,6 +38,7 @@ def vacancies_cat_view(request, category_name):
     except ObjectDoesNotExist:
         return HttpResponseNotFound('Ресурс не найден!')
 
+
 def vacancy_view(request, vacancy_id):
     context = {}
     try:
@@ -46,7 +47,7 @@ def vacancy_view(request, vacancy_id):
         if request.method == 'POST':
             form = ApplicationForm(request.POST, request.FILES)
             if form.is_valid():
-                args= form.save(commit=False) # принимаем данные от формы
+                args = form.save(commit=False)  # принимаем данные от формы
                 setattr(args, 'user', User.objects.get(id=request.user.id))
                 setattr(args, 'vacancy', Vacancy.objects.get(id=vacancy_id))
                 args.save()
@@ -58,6 +59,7 @@ def vacancy_view(request, vacancy_id):
     except ObjectDoesNotExist:
         return HttpResponseNotFound('Ресурс не найден!')
 
+
 def company_view(request, company_id):
     context = {}
     company = Company.objects.get(id=company_id)
@@ -65,13 +67,16 @@ def company_view(request, company_id):
     context['vacancies'] = Vacancy.objects.filter(company__id=company_id)
     return render(request, "vacancy_app/company.html", context=context)
 
-def vacancy_send_view(request,vacancy_id):
+
+def vacancy_send_view(request, vacancy_id):
     context = {}
     return render(request, "vacancy_app/sent.html", context=context)
+
 
 def mycompany_letsstart_view(request):
     context = {}
     return render(request, "vacancy_app/company-create.html", context=context)
+
 
 def mycompany_create_view(request):
     try:
@@ -99,21 +104,22 @@ def mycompany_create_view(request):
             form = CompanyForm()
         return render(request, "vacancy_app/company-edit.html", {'form': form})
 
+
 def mycompany_vacancies_view(request):
     context = {}
     try:
-        vacancies = Vacancy.objects.filter(company = request.user.company)
+        vacancies = Vacancy.objects.filter(company=request.user.company)
         context['vacancies'] = vacancies
         if(vacancies):
             context['company'] = True
     except ObjectDoesNotExist:
         pass
     return render(request, "vacancy_app/vacancy-list.html", context=context)
-    
+
 
 def mycompany_vacancies_create_view(request):
     context = {}
-    context['vacancies'] = Vacancy.objects.filter(company = request.user.company)
+    context['vacancies'] = Vacancy.objects.filter(company=request.user.company)
     try:
         if request.method == "POST":
             form = VacancyForm(request.POST, request.FILES)
@@ -130,7 +136,8 @@ def mycompany_vacancies_create_view(request):
     except ObjectDoesNotExist:
         return HttpResponseNotFound('Ресурс не найден!')
 
-def mycompany_vacancy_view(request,vacancy_id):
+
+def mycompany_vacancy_view(request, vacancy_id):
     context = {}
     try:
         vacancy = Vacancy.objects.get(id=vacancy_id)
@@ -141,7 +148,6 @@ def mycompany_vacancy_view(request,vacancy_id):
             if form.is_valid():
                 vacancy = form.save(commit=False)
                 vacancy.company = request.user.company
-                #vacancy.published_at = timezone.now()
                 vacancy.save()
                 return redirect('mycompany_vacancies')
         else:
@@ -151,6 +157,7 @@ def mycompany_vacancy_view(request,vacancy_id):
     except ObjectDoesNotExist:
         return HttpResponseNotFound('Ресурс не найден!')
 
+
 def search_view(request):
     context = {}
     query = request.GET.get('q')
@@ -158,22 +165,12 @@ def search_view(request):
             Q(title__icontains=query) | Q(skills__icontains=query) | Q(description__icontains=query)
         )
     return render(request, "vacancy_app/search.html", context=context)
-'''
-class SearchResultsView(ListView):
-    model = Vacancy
-    template_name = 'vacancy_app/search.html'
-    def get_queryset(self): # новый
-        query = self.request.GET.get('q')
-        print(query)
-        vacancies = Vacancy.objects.filter(
-            Q(title__icontains=query) | Q(skills__icontains=query) | Q(description__icontains=query)
-        )
-        print(vacancies)
-        return vacancies
-'''
+
+
 def myresume_letsstart_view(request):
     context = {}
     return render(request, "vacancy_app/resume-create.html", context=context)
+
 
 def myresume_create_view(request):
     context = {}
@@ -188,6 +185,7 @@ def myresume_create_view(request):
         form = ResumeForm()
     context['form'] = form
     return render(request, "vacancy_app/resume-edit.html", context=context)
+
 
 def myresume_view(request):
     context = {}
@@ -204,10 +202,12 @@ def myresume_view(request):
     context['form'] = form
     return render(request, "vacancy_app/resume-edit.html", context=context)
 
+
 class RegisterUser(CreateView):
     form_class = RegisterUserForm
     success_url = 'login'
     template_name = 'vacancy_app/register.html'
+
     def form_valid(self, form):
         user = form.save()
         login(self.request, user)
@@ -223,6 +223,7 @@ class LoginUser(LoginView):
 def logout_view(request):
     logout(request)
     return redirect('main')
+
 
 def custom_handler500(request):
     # Call when PermissionDenied raised

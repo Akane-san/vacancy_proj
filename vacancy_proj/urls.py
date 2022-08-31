@@ -19,7 +19,10 @@ from django.conf.urls.static import static
 from django.contrib import admin
 
 from vacancy_app.views import main_view, vacancy_view, vacancies_view, vacancies_cat_view, company_view
-from vacancy_app.views import *
+from vacancy_app.views import vacancy_send_view, mycompany_letsstart_view, mycompany_create_view
+from vacancy_app.views import mycompany_vacancies_view, mycompany_vacancies_create_view
+from vacancy_app.views import mycompany_vacancy_view, search_view, myresume_letsstart_view
+from vacancy_app.views import myresume_create_view, myresume_view, RegisterUser, LoginUser, logout_view
 from vacancy_app.views import custom_handler404, custom_handler500
 
 
@@ -49,6 +52,5 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, 
+    urlpatterns += static(settings.MEDIA_URL,
                           document_root=settings.MEDIA_ROOT)
-                          

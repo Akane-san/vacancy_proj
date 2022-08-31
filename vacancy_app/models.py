@@ -1,6 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import User
 from django.db.models import ForeignKey
+from django.contrib.auth.models import User
 
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -36,7 +36,7 @@ class Vacancy(models.Model):
 
 class Application(models.Model):
     written_username = models.CharField(max_length=100)
-    written_phone = PhoneNumberField(null=False, blank=False) 
+    written_phone = PhoneNumberField(null=False, blank=False)
     written_cover_letter = models.TextField()
     vacancy = ForeignKey(Vacancy, on_delete=models.CASCADE, related_name="applications")
     user = ForeignKey(User, on_delete=models.CASCADE, related_name="applications")
@@ -49,6 +49,7 @@ class Resume(models.Model):
         middle = 'Миддл'
         senior = 'Синьор'
         lead = 'Лид'
+
     class StatusType(models.TextChoices):
         chill = 'Не ищу работу'
         review = 'Рассматриваю предложения'
@@ -63,4 +64,4 @@ class Resume(models.Model):
     grade = models.CharField(max_length=7, choices=GradeType.choices)
     education = models.TextField()
     experience = models.TextField()
-    portfolio = models.CharField(max_length=80,null=True)
+    portfolio = models.CharField(max_length=80, null=True)

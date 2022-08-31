@@ -25,6 +25,7 @@ class ApplicationAdmin(admin.ModelAdmin):
 class ResumeAdmin(admin.ModelAdmin):
     pass
 
+
 admin.site.register(Vacancy, VacancyAdmin)
 admin.site.register(Company, CompanyAdmin)
 admin.site.register(Application, ApplicationAdmin)
